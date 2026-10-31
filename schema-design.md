@@ -2,22 +2,23 @@
 MySQL will store structured and relational entities:
 - admins
 - appointments
-- clinic_locations
+- clinic
 - doctors
-- doctors_availability_exceptions
-- doctors_schedule
+- doctor_available_times
 - patients
 - payments
 - specialties
 
 
-### Table: admins 
-(System users responsible for organizing, managing, supervising, and directing the operations of the app)
+### Table: admins
 - `id` INT, Primary Key, AUTO_INCREMENT
 - `username` VARCHAR(100), UNIQUE, Not Null
 - `email` VARCHAR(255), UNIQUE, Not Null
 - `password_hash` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
+
+**Notes**
+- Admin can acces with username or email. Validation for duplicates and new admins checks both. 
 
 
 ### Table: appointments
@@ -25,36 +26,34 @@ MySQL will store structured and relational entities:
 - `uuid` CHAR(36), UNIQUE, Not Null
 - `doctor_id` INT, Foreign Key → doctors(id)
 - `patient_id` INT, Foreign Key → patients(id)
-- `location_id` INT, Foreign Key → clinic_locations(id)
-- `appointment_start` DATETIME, Not Null
-- `appointment_end` DATETIME, Not Null
+- `clinic_id` INT, Foreign Key → clinics(id)
+- `appointment_time` DATETIME, Not Null
 - `status` ENUM('Scheduled', 'Completed', 'Cancelled'), DEFAULT 'Scheduled'
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 
 **Notes**
 - `uuid` is used to prenvet ID Enumeration Attacks (IDOR).
-- `appointment_end` is calculated at the Service Layer when a new `appointment` is created. `appointment_end` = `appointment_start` + `doctor_id`.`doctors_schedule`.`appointment_duration`
-- Validation logic (in the Service Layer) will be used to ensure that there are no overlaps between `start_time` and `end_time` for the same doctor_id. In other words, that there are no two appointments for the same doctor at the same time.
 
 
-### Table: clinic_locations
+### Table: clinics
 - `id` INT, Primary Key, AUTO_INCREMENT
 - `name` VARCHAR(150), Not Null
-- `address` VARCHAR(300), Null
+- `address` VARCHAR(300), Not Null
 - `timezone` VARCHAR(50), Not Null, DEFAULT 'UTC'
-- `phone` VARCHAR(30), Null
+- `phone` VARCHAR(10), Not Null
 
 
 ### Table: doctors
 - `id` INT, Primary Key, AUTO_INCREMENT
 - `uuid` CHAR(36), UNIQUE, Not Null
-- `clinic_id` INT, Foreign Key → clinic_locations.id
+- `clinic_id` INT, Foreign Key → clinics(id)
+- `specialty_id` INT, Foreign Key → specialties(id)
 - `first_name` VARCHAR(50), Not Null
 - `last_name` VARCHAR(50), Not Null
 - `email` VARCHAR(255), UNIQUE, Null
-- `phone` VARCHAR(30), Null
-- `specialty_id` INT, Foreign Key → specialties(id)
+- `phone` VARCHAR(10), Null
 - `is_deleted` TINYINT(1), DEFAULT 0, Not Null
+- `password_hash` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
@@ -63,21 +62,9 @@ MySQL will store structured and relational entities:
 - `is_deleted` is used as a boolean to preserve history of appointments. The appointments related are **not** deleted and they are stored for auditing.
 
 
-### Table: doctor_availability_exceptions
-- `id` INT, Primary Key, AUTO_INCREMENT
+### Table: doctor_available_times
 - `doctor_id` INT, Foreign Key → doctors(id)
-- `exception_date` DATE, Not Null
-- `type` ENUM('holiday', 'vacation', 'personal_day', 'temporary_change'), Not Null
-- `reason` TEXT, Null
-
-
-### Table: doctors_schedule
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `doctor_id` INT, Foreign Key → doctors(id)
-- `day_of_week` ENUM('Mon', 'Tue', 'Wed', 'Thu', 'Fri'), Not Null
-- `start_time` TIME, Not Null
-- `end_time` TIME, Not Null
-- `appointment_duration` INT, Not Null
+- `available_times`VARCHAR(20), Not null
 
 
 ### Table: patients
@@ -89,6 +76,7 @@ MySQL will store structured and relational entities:
 - `gender` ENUM('Male','Female','Other'), Null
 - `email` VARCHAR(255), UNIQUE, Null
 - `phone` VARCHAR(30), Null
+- `password_hash` VARCHAR(255), Not Null
 - `is_deleted` TINYINT(1) DEFAULT 0, Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -105,12 +93,11 @@ MySQL will store structured and relational entities:
 - `id` INT, Primary Key, AUTO_INCREMENT
 - `uuid` CHAR(36), UNIQUE, Not Null
 - `appointment_id` INT, Foreign Key → appointments(id)
-- `patient_id` INT, Foreign Key → patients(id)
-- `amount` DECIMAL(10,2), NOT NULL
+- `amount` DECIMAL(10,2), Not Null
 - `currency` CHAR(3), DEFAULT 'USD'
 - `method` ENUM('card','cash','insurance','other'), DEFAULT 'card'
 - `status` ENUM('pending','completed','failed','refunded'), DEFAULT 'pending'
-- `transaction_ref` VARCHAR(255), NULL
+- `transaction_ref` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 
 **Notes**
@@ -131,51 +118,17 @@ The following collections are implemented:
 ### Collection: prescriptions
 ```json
 {
-  "_id": { "$oid": "65a1f2b3e4b0a1a2b3c4d5e6" },
-  "prescription_uuid": "pres-9876-abcd-5432",
-  "schema_version": 2,
+  "id": "653bc8a2e4b0f1a2c3d4e5f6",
+  "patientName": "John Doe",
+  "appointmentId": 1025,
+  "medication": "Amoxicillin",
+  "dosage": "500mg, three times a day",
+  "doctorNotes": "Complete the full course of antibiotics.",
   "metadata": {
-    "created_at": { "$date": "2023-10-27T10:30:00Z" },
-    "source_device": "tablet_clinic_01",
-    "tags": ["urgent", "post-surgery", "follow-up-required"]
-  },
-  "clinical_context": {
-    "patient_id": { "$oid": "507f1f77bcf86cd799439011" }, 
-    "doctor_id": { "$oid": "507f1f77bcf86cd799439022" },
-    "diagnosis": {
-      "description": "Infección respiratoria aguda",
-      "icd_10_code": "J06.9"
-    },
-    "snapshot_patient_info": {
-      "full_name": "Juan Pérez",
-      "allergies_at_time_of_prescription": ["Penicillin"]
-    }
-  },
-  "medications": [
-    {
-      "drug_name": "Amoxicilina",
-      "dosage": "500mg",
-      "frequency": {
-        "interval": "8h",
-        "instructions": "Tomar cada 8 horas después de las comidas"
-      },
-      "duration": {
-        "value": 7,
-        "unit": "days"
-      },
-      "notes": "No interrumpir el tratamiento"
-    },
-    {
-      "drug_name": "Paracetamol",
-      "dosage": "1g",
-      "frequency": {
-        "interval": "cada 6h",
-        "instructions": "Solo en caso de fiebre o dolor"
-      },
-      "duration": {
-        "value": 3,
-        "unit": "days"
-      }
-    }
-  ]
+    "status": "ACTIVE",
+    "expiryDate": "2026-12-31",
+    "issuedByDoctorId": "DOC-9982",
+    "createdAt": "2026-10-27T10:15:30.000+00:00",
+    "updatedAt": "2026-10-27T14:20:11.000+00:00"
+  }
 }
