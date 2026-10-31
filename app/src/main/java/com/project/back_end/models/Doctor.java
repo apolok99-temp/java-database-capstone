@@ -1,65 +1,155 @@
 package com.project.back_end.models;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+@Entity
+@Table(name = "doctors")
 public class Doctor {
 
-// @Entity annotation:
-//    - Marks the class as a JPA entity, meaning it represents a table in the database.
-//    - Required for persistence frameworks (e.g., Hibernate) to map the class to a database table.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-// 1. 'id' field:
-//    - Type: private Long
-//    - Description:
-//      - Represents the unique identifier for each doctor.
-//      - The @Id annotation marks it as the primary key.
-//      - The @GeneratedValue(strategy = GenerationType.IDENTITY) annotation auto-generates the ID value when a new record is inserted into the database.
+    @Column(unique = true, nullable = false)
+    private String uuid = UUID.randomUUID().toString();
 
-// 2. 'name' field:
-//    - Type: private String
-//    - Description:
-//      - Represents the doctor's name.
-//      - The @NotNull annotation ensures that the doctor's name is required.
-//      - The @Size(min = 3, max = 100) annotation ensures that the name length is between 3 and 100 characters. 
-//      - Provides validation for correct input and user experience.
+    @NotBlank(message = "Doctor name is required")
+    @Size(min = 2, max = 50)
+    @Column(name = "first_name", nullable = false, length = 50)
+    private String firstName;
 
+    @NotBlank(message = "Doctor last name is required")
+    @Size(min = 2, max = 50)
+    @Column(name = "last_name", nullable = false, length = 50)
+    private String lastName;
 
-// 3. 'specialty' field:
-//    - Type: private String
-//    - Description:
-//      - Represents the medical specialty of the doctor.
-//      - The @NotNull annotation ensures that a specialty must be provided.
-//      - The @Size(min = 3, max = 50) annotation ensures that the specialty name is between 3 and 50 characters long.
+    @NotNull(message = "Specialty is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "specialty_id", nullable = false)
+    private Specialty specialty;
 
-// 4. 'email' field:
-//    - Type: private String
-//    - Description:
-//      - Represents the doctor's email address.
-//      - The @NotNull annotation ensures that an email address is required.
-//      - The @Email annotation validates that the email address follows a valid email format (e.g., doctor@example.com).
+    @NotNull(message = "Clinic is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clinic_id", nullable = false)
+    private Clinic clinic;
 
-// 5. 'password' field:
-//    - Type: private String
-//    - Description:
-//      - Represents the doctor's password for login authentication.
-//      - The @NotNull annotation ensures that a password must be provided.
-//      - The @Size(min = 6) annotation ensures that the password must be at least 6 characters long.
-//      - The @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) annotation ensures that the password is not serialized in the response (hidden from the frontend).
+    @Email(message = "Please provide a valid email address")
+    @Size(max = 255)
+    @Column(unique = true, length = 255)
+    private String email;
 
-// 6. 'phone' field:
-//    - Type: private String
-//    - Description:
-//      - Represents the doctor's phone number.
-//      - The @NotNull annotation ensures that a phone number must be provided.
-//      - The @Pattern(regexp = "^[0-9]{10}$") annotation validates that the phone number must be exactly 10 digits long.
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
+    @Column(length = 10)
+    private String phone;
 
-// 7. 'availableTimes' field:
-//    - Type: private List<String>
-//    - Description:
-//      - Represents the available times for the doctor in a list of time slots.
-//      - Each time slot is represented as a string (e.g., "09:00-10:00", "10:00-11:00").
-//      - The @ElementCollection annotation ensures that the list of time slots is stored as a separate collection in the database.
+    @JsonIgnore // Exclude logic field
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
-// 8. Getters and Setters:
-//    - Standard getter and setter methods are provided for all fields: id, name, specialty, email, password, phone, and availableTimes.
+    @NotBlank
+    @Size(min = 6, message = "Password must be at least 6 characters")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Secure: Cannot be read via API
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @JsonIgnore
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @JsonIgnore
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+    
+    @ElementCollection
+    @CollectionTable(name = "doctor_available_times", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Column(name = "available_times", length = 20)
+    private List<String> availableTimes;
+
+    // Constructor
+
+    public Doctor(){}
+
+    // Parameterized Constructor
+
+    public Doctor(String firstName, String lastName, Specialty specialty, Clinic clinic, String email, String phone, String passwordHash, LocalDateTime updatedAt, List<String> availableTimes) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.specialty = specialty;
+        this.clinic = clinic;
+        this.email = email;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.updatedAt = updatedAt;
+        this.availableTimes = availableTimes;
+    }
+
+    // Getters and Setters
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getUuid() { return uuid;  }
+    public void setUuid(String uuid) { this.uuid = uuid; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public Specialty getSpecialty() { return specialty; }
+    public void setSpecialty(Specialty specialty) { this.specialty = specialty; }
+
+    public Clinic getClinic() { return clinic; }
+    public void setClinic(Clinic clinic) { this.clinic = clinic; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public Boolean getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Boolean isDeleted) { this.isDeleted = isDeleted; }
+
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<String> getAvailableTimes() { return availableTimes; }
+    public void setAvailableTimes(List<String> availableTimes) { this.availableTimes = availableTimes; }
 
 }
 
