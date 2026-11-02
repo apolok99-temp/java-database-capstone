@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -64,8 +66,9 @@ public class Payment {
     @Column(name = "transaction_ref", nullable = false, length = 255)
     private String transactionRef;
 
-    @JsonIgnore // Exclude logic field from JSON
-    @Column(name = "created_at", updatable = false)
+    @JsonIgnore
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // Constructor
