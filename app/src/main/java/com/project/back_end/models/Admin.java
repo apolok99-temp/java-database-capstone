@@ -39,8 +39,8 @@ public class Admin {
     @NotBlank(message = "Password must be set")
     @Size(min = 6, message = "Password must be at least 6 characters")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Secure: Cannot be read via API
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(nullable = false, length = 255)
+    private String password;
 
     @JsonIgnore
     @CreationTimestamp
@@ -56,7 +56,7 @@ public class Admin {
     public Admin(String username, String email, String password) {
         this.username = username;
         this.email = email;
-        this.passwordHash = password;
+        this.password = password;
     }
 
     // Getters and Setters
@@ -70,8 +70,8 @@ public class Admin {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPassword() { return password; }
+    public void setPassword(String passwordHash) { this.password = passwordHash; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

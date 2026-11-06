@@ -2,19 +2,15 @@
 MySQL will store structured and relational entities:
 - admins
 - appointments
-- clinic
 - doctors
 - doctor_available_times
 - patients
-- payments
-- specialties
-
 
 ### Table: admins
-- `id` INT, Primary Key, AUTO_INCREMENT
+- `id` BIGINT, Primary Key, AUTO_INCREMENT
 - `username` VARCHAR(100), UNIQUE, Not Null
 - `email` VARCHAR(255), UNIQUE, Not Null
-- `password_hash` VARCHAR(255), Not Null
+- `password` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 
 **Notes**
@@ -22,93 +18,41 @@ MySQL will store structured and relational entities:
 
 
 ### Table: appointments
-- `id` INT, Primary Key, Auto Increment
-- `uuid` CHAR(36), UNIQUE, Not Null
-- `doctor_id` INT, Foreign Key → doctors(id)
-- `patient_id` INT, Foreign Key → patients(id)
-- `clinic_id` INT, Foreign Key → clinics(id)
+- `id` BIGINT, Primary Key, Auto Increment
+- `doctor_id` BIGINT, Foreign Key → doctors(id)
+- `patient_id` BIGINT, Foreign Key → patients(id)
 - `appointment_time` DATETIME, Not Null
-- `status` ENUM('Scheduled', 'Completed', 'Cancelled'), DEFAULT 'Scheduled'
+- `status` TINYINT(1), Not Null, DEFAULT 0 
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 
 **Notes**
-- `uuid` is used to prenvet ID Enumeration Attacks (IDOR).
-
-
-### Table: clinics
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `name` VARCHAR(150), Not Null
-- `address` VARCHAR(300), Not Null
-- `timezone` VARCHAR(50), Not Null, DEFAULT 'UTC'
-- `phone` VARCHAR(10), Not Null
+- `status` can be "Scheduled:0" or "Completed:1".
 
 
 ### Table: doctors
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `uuid` CHAR(36), UNIQUE, Not Null
-- `clinic_id` INT, Foreign Key → clinics(id)
-- `specialty_id` INT, Foreign Key → specialties(id)
-- `first_name` VARCHAR(50), Not Null
-- `last_name` VARCHAR(50), Not Null
+- `id` BIGINT, Primary Key, AUTO_INCREMENT
+- `name` VARCHAR(100), Not Null
+- `specialty` VARCHAR(50), Not Null
 - `email` VARCHAR(255), UNIQUE, Null
-- `phone` VARCHAR(10), Null
-- `is_deleted` TINYINT(1), DEFAULT 0, Not Null
-- `password_hash` VARCHAR(255), Not Null
+- `password` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
-**Notes**
-- `uuid` is used to prenvet ID Enumeration Attacks (IDOR).
-- `is_deleted` is used as a boolean to preserve history of appointments. The appointments related are **not** deleted and they are stored for auditing.
 
 
 ### Table: doctor_available_times
-- `doctor_id` INT, Foreign Key → doctors(id)
-- `available_times`VARCHAR(20), Not null
+- `doctor_id` BIGINT, Foreign Key → doctors(id)
+- `available_times` VARCHAR(20), Not null
 
 
 ### Table: patients
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `uuid` VARCHAR(36) UNIQUE, Not Null
-- `first_name` VARCHAR(50), Not Null
-- `last_name` VARCHAR(50), Not Null
-- `date_of_birth` DATE, Null 
-- `gender` ENUM('Male','Female','Other'), Null
-- `email` VARCHAR(255), UNIQUE, Null
-- `phone` VARCHAR(30), Null
-- `password_hash` VARCHAR(255), Not Null
-- `is_deleted` TINYINT(1) DEFAULT 0, Not Null
+- `id` BIGINT, Primary Key, AUTO_INCREMENT
+- `name` VARCHAR(100), Not Null
+- `email` VARCHAR(255), UNIQUE, Not Null
+- `password` VARCHAR(255), Not Null
+- `phone` VARCHAR(30), Not Null
+- `address` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
-**Notes**
-- `uuid` is used to prenvet ID Enumeration Attacks (IDOR).
-- `date_of_birth` may not be known or may not have been provided yet.
-- `gender` is optional. The patient may fill it in to specify how they should be addressed or if it is required for the appointment. 
-- The database will CHECK (`phone` IS NOT NULL OR `email` IS NOT NULL). Some patients may share `phone`: a family phone, their parents' phone, or a caregiver's phone.
-- `is_deleted` is used as a boolean to preserve history of appointments. The appointments related are **not** deleted and they are stored for auditing.
-
-
-### Table: payments
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `uuid` CHAR(36), UNIQUE, Not Null
-- `appointment_id` INT, Foreign Key → appointments(id)
-- `amount` DECIMAL(10,2), Not Null
-- `currency` CHAR(3), DEFAULT 'USD'
-- `method` ENUM('card','cash','insurance','other'), DEFAULT 'card'
-- `status` ENUM('pending','completed','failed','refunded'), DEFAULT 'pending'
-- `transaction_ref` VARCHAR(255), Not Null
-- `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
-
-**Notes**
-- `uuid` is used to prenvet ID Enumeration Attacks (IDOR).
-
-
-### Table: specialties
-- `id` INT, Primary Key, AUTO_INCREMENT
-- `code` VARCHAR(50), UNIQUE, NOT NULL
-- `name` VARCHAR(150), NOT NULL
-- `description` TEXT, NULL
 
 
 ## MongoDB Collection Design

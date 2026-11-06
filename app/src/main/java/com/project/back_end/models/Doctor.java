@@ -2,7 +2,6 @@ package com.project.back_end.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,17 +13,13 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -33,49 +28,28 @@ public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(unique = true, nullable = false)
-    private String uuid = UUID.randomUUID().toString();
+    private Long id;
 
     @NotBlank(message = "Doctor name is required")
-    @Size(min = 2, max = 50)
-    @Column(name = "first_name", nullable = false, length = 50)
-    private String firstName;
+    @Size(min = 2, max = 100, message = "Doctor's name should be between 2 and 100 characters")
+    @Column(nullable = false, length = 100)
+    private String name;
 
-    @NotBlank(message = "Doctor last name is required")
-    @Size(min = 2, max = 50)
-    @Column(name = "last_name", nullable = false, length = 50)
-    private String lastName;
-
-    @NotNull(message = "Specialty is required")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "specialty_id", nullable = false)
-    private Specialty specialty;
-
-    @NotNull(message = "Clinic is required")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clinic_id", nullable = false)
-    private Clinic clinic;
+    @NotBlank(message = "Specialty is required")
+    @Size(max = 50, message = "Specialty name should no more than 100 characters")
+    @Column(nullable = false, length = 50)
+    private String specialty;
 
     @Email(message = "Please provide a valid email address")
     @Size(max = 255)
     @Column(unique = true, length = 255)
     private String email;
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
-    @Column(length = 10)
-    private String phone;
-
-    @JsonIgnore // Exclude logic field
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
-
-    @NotBlank
+    @NotBlank(message = "Password cannot be null")
     @Size(min = 6, message = "Password must be at least 6 characters")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Secure: Cannot be read via API
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
+    private String password;
 
     @JsonIgnore
     @CreationTimestamp
@@ -98,49 +72,31 @@ public class Doctor {
 
     // Parameterized Constructor
 
-    public Doctor(String firstName, String lastName, Specialty specialty, Clinic clinic, String email, String phone, String passwordHash, LocalDateTime updatedAt, List<String> availableTimes) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Doctor(String name, String specialty, String email, String password, LocalDateTime updatedAt, List<String> availableTimes) {
+        this.name = name;
         this.specialty = specialty;
-        this.clinic = clinic;
         this.email = email;
-        this.phone = phone;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.updatedAt = updatedAt;
         this.availableTimes = availableTimes;
     }
 
     // Getters and Setters
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getUuid() { return uuid;  }
-    public void setUuid(String uuid) { this.uuid = uuid; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-
-    public Specialty getSpecialty() { return specialty; }
-    public void setSpecialty(Specialty specialty) { this.specialty = specialty; }
-
-    public Clinic getClinic() { return clinic; }
-    public void setClinic(Clinic clinic) { this.clinic = clinic; }
+    public String getSpecialty() { return specialty; }
+    public void setSpecialty(String specialty) { this.specialty = specialty; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    public Boolean getIsDeleted() { return isDeleted; }
-    public void setIsDeleted(Boolean isDeleted) { this.isDeleted = isDeleted; }
-
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPassword() { return password; }
+    public void setPassword(String passwordHash) { this.password = passwordHash; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
