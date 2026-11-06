@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -51,6 +52,11 @@ public class Doctor {
     @Column(nullable = false)
     private String password;
 
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
+    @Size(max = 30)
+    @Column(nullable = false, length = 30)
+    private String phone;
+
     @JsonIgnore
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -72,11 +78,12 @@ public class Doctor {
 
     // Parameterized Constructor
 
-    public Doctor(String name, String specialty, String email, String password, LocalDateTime updatedAt, List<String> availableTimes) {
+    public Doctor(String name, String specialty, String email, String password, String phone, LocalDateTime updatedAt, List<String> availableTimes) {
         this.name = name;
         this.specialty = specialty;
         this.email = email;
         this.password = password;
+        this.phone = phone;
         this.updatedAt = updatedAt;
         this.availableTimes = availableTimes;
     }
@@ -97,6 +104,9 @@ public class Doctor {
 
     public String getPassword() { return password; }
     public void setPassword(String passwordHash) { this.password = passwordHash; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

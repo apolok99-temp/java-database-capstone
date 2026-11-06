@@ -35,6 +35,7 @@ MySQL will store structured and relational entities:
 - `specialty` VARCHAR(50), Not Null
 - `email` VARCHAR(255), UNIQUE, Null
 - `password` VARCHAR(255), Not Null
+- `phone` VARCHAR(30), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
