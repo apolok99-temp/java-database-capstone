@@ -9,12 +9,8 @@ MySQL will store structured and relational entities:
 ### Table: admins
 - `id` BIGINT, Primary Key, AUTO_INCREMENT
 - `username` VARCHAR(100), UNIQUE, Not Null
-- `email` VARCHAR(255), UNIQUE, Not Null
 - `password` VARCHAR(255), Not Null
 - `created_at` TIMESTAMP, DEFAULT CURRENT_TIMESTAMP
-
-**Notes**
-- Admin can acces with username or email. Validation for duplicates and new admins checks both. 
 
 
 ### Table: appointments
