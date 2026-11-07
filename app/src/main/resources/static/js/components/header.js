@@ -12,10 +12,12 @@ function renderHeader() {
     localStorage.removeItem("token");
     headerDiv.innerHTML = `
             <header class="header">
-              <div class="logo-section">
-                <img src="../assets/images/logo/logo.png" alt="Hospital CRM Logo" class="logo-img">
-                <span class="logo-title">Hospital CMS</span>
-              </div>
+              <a href="/" class="logo-link" style="text-decoration: none;>
+                <div class="logo-section">
+                  <img src="../assets/images/logo/logo.png" alt="Hospital CRM Logo" class="logo-img">
+                  <span class="logo-title">Hospital CMS</span>
+                </div>
+              </a>
             </header>`;
         return;
   }
@@ -23,11 +25,14 @@ function renderHeader() {
   const role = localStorage.getItem("userRole");
   const token = localStorage.getItem("token");
 
-  let headerContent = `<header class="header">
-      <div class="logo-section">
-        <img src="../assets/images/logo/logo.png" alt="Hospital CRM Logo" class="logo-img">
-        <span class="logo-title">Hospital CMS</span>
-      </div>
+  let headerContent = `
+          <header class="header">
+            <a href="/" class="logo-link" style="text-decoration: none;>
+              <div class="logo-section">
+                <img src="../assets/images/logo/logo.png" alt="Hospital CRM Logo" class="logo-img">
+                <span class="logo-title">Hospital CMS</span>
+              </div>
+            </a>
       <nav>`;
 
   if ((role === "loggedPatient" || role === "admin" || role === "doctor") && !token) {
@@ -91,20 +96,19 @@ function logoutPatient() {
  * Adds event listeners to dynamically created buttons in the header.
  */
 function attachHeaderButtonListeners() {
-  const loginBtn = document.getElementById("patientLogin");
-  const signupBtn = document.getElementById("patientSignup");
-
-  if (loginBtn) {
-      loginBtn.addEventListener("click", () => {
-          // Example: Open login modal
-          openModal('loginModal');
-      });
+  const doctorBtn = document.getElementById("btn-doctor");
+  if (doctorBtn) {
+    doctorBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      openModal("doctorLogin");
+    });
   }
 
-  if (signupBtn) {
-      signupBtn.addEventListener("click", () => {
-          // Example: Open signup modal
-          openModal('signupModal');
-      });
+  const adminBtn = document.getElementById("btn-admin");
+  if (adminBtn) {
+    adminBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      openModal("adminLogin");
+    });
   }
 }
