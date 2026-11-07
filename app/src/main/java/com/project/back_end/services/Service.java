@@ -127,10 +127,10 @@ public class Service {
     public ResponseEntity<Map<String, String>> validatePatientLogin(Login login) {
         Map<String, String> map = new HashMap<>();
         try {
-            Patient patient = patientRepository.findByEmail(login.getidentifier());
+            Patient patient = patientRepository.findByEmail(login.getEmail());
             if (patient != null) {
                 if (patient.getPassword().equals(login.getPassword())) {
-                    map.put("token", tokenService.generateToken(login.getidentifier()));
+                    map.put("token", tokenService.generateToken(login.getEmail()));
                     return ResponseEntity.status(HttpStatus.OK).body(map);
                 }
 

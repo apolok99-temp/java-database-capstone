@@ -137,7 +137,7 @@ public class DoctorService {
         Map<String, String> map = new HashMap<>();
         
         try {
-            Doctor doctor = doctorRepository.findByEmail(login.getidentifier());
+            Doctor doctor = doctorRepository.findByEmail(login.getEmail());
             if (doctor != null) {
                 if (doctor.getPassword().equals(login.getPassword())) {
                     map.put("token", tokenService.generateToken(doctor.getEmail()));
