@@ -59,18 +59,25 @@ export async function saveDoctor(doctor, token) {
 
 export async function filterDoctors(name = "", time = "", specialty = "") {
   try {
-    const response = await fetch(`${DOCTOR_API}/filter/${name}/${time}/${specialty}`);
-
-    if (!response.ok) {
-      console.error("Filter request failed");
-      return { doctors: [] };
+      const response = await fetch(`${DOCTOR_API}/filter/${name}/${time}/${specialty}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        return data; 
+        
+      } else {
+        console.error("Failed to fetch doctors:", response.statusText);
+        return { doctors: [] };
+        
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong!");
+      return { doctors: [] }; 
     }
-
-    const data = await response.json();
-    return data.doctors || [];
-  } catch (error) {
-    console.error("Error filtering doctors:", error);
-    alert("Something went wrong while filtering doctors.");
-    return { doctors: [] };
-  }
 }

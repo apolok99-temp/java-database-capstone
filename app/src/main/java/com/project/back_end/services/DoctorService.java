@@ -109,6 +109,7 @@ public class DoctorService {
     @Transactional
     public List<Doctor> getDoctors() {
         List<Doctor> doctors = doctorRepository.findAll();
+        doctors.forEach(doc -> doc.getAvailableTimes().size());
         return doctors;
     }
 
@@ -160,6 +161,7 @@ public class DoctorService {
         
         Map<String, Object> map = new HashMap<>();
         List<Doctor> doctorList = doctorRepository.findByNameLike(name);
+        doctorList.forEach(doc -> doc.getAvailableTimes().size());
         map.put("doctors", doctorList);
         return map;
     }
@@ -209,6 +211,7 @@ public class DoctorService {
     public Map<String, Object> filterDoctorByNameAndSpecility(String name, String specilty) {
         Map<String, Object> map = new HashMap<>();
         List<Doctor> doctorList = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specilty);
+        doctorList.forEach(doc -> doc.getAvailableTimes().size());
         map.put("doctors", doctorList);
         return map;
     }
@@ -227,6 +230,7 @@ public class DoctorService {
     public Map<String, Object> filterDoctorBySpecility(String specilty) {
         Map<String, Object> map = new HashMap<>();
         List<Doctor> doctorList = doctorRepository.findBySpecialtyIgnoreCase(specilty);
+        doctorList.forEach(doc -> doc.getAvailableTimes().size());
         map.put("doctors", doctorList);
         return map;
     }
