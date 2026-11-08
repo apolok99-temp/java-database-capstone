@@ -15,7 +15,7 @@ export async function getDoctors() {
 
 export async function deleteDoctor(doctorId, token) {
   try {
-    const response = await fetch(`${DOCTOR_API}/delete/${doctorId}/${token}`, {
+    const response = await fetch(`${DOCTOR_API}/${doctorId}/${token}`, {
       method: "DELETE"
     });
 
@@ -35,7 +35,7 @@ export async function deleteDoctor(doctorId, token) {
 
 export async function saveDoctor(doctor, token) {
   try {
-    const response = await fetch(`${DOCTOR_API}/create/${token}`, {
+    const response = await fetch(`${DOCTOR_API}/${token}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
