@@ -13,18 +13,15 @@
     <title>Doctor Dashboard</title>
 
     <!-- Link CSS Stylesheets -->
-    <link rel="stylesheet" th:href="@{/css/adminDashboard.css}" />
-    <link rel="stylesheet" th:href="@{/css/doctorDashboard.css}" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/adminDashboard.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/doctorDashboard.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}" />
 
     <!-- Link JavaScript Files (with defer) -->
     <script th:src="@{/js/render.js}" defer></script>
     <script th:src="@{/js/util.js}" defer></script>
-    <script th:src="@{/js/header.js}" defer></script>
-    <script th:src="@{/js/footer.js}" defer></script>
-
-    <script th:src="@{/js/patientRows.js}" defer></script>
-    <script type="module" th:src="@{/js/patientServices.js}" defer></script>
+    <script th:src="@{/js/components/header.js}" defer></script>
+    <script th:src="@{/js/components/footer.js}" defer></script>
     <script type="module" th:src="@{/js/doctorDashboard.js}" defer></script>
 </head>
 

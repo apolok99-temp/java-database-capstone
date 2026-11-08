@@ -35,7 +35,7 @@
             <main class="main-content">
                 <!-- Search Bar -->
                 <div class="search-container">
-                    <input type="text" id="searchBar" placeholder="search by doctor name" />
+                    <input type="text" id="searchBar" placeholder="Search by doctor name" />
                 </div>
                 <!-- Filter Dropdowns -->
                 <div class="filter-wrapper">
@@ -47,12 +47,22 @@
                     </select>
 
                     <!-- Medical Specialty Filter -->
-                    <select id="specialtyFilter" class="filter-select">
-                        <option value="">All Specialties</option>
+                    <select id="filterSpecialty" class="filter-select">
+                        <option value="">Specialty</option>
                         <option value="Cardiologist">Cardiologist</option>
-                        <option value="Dentist">Dentist</option>
+                        <option value="Dermatologist">Dermatologist</option>
                         <option value="Neurologist">Neurologist</option>
                         <option value="Pediatrician">Pediatrician</option>
+                        <option value="Orthopedic">Orthopedic</option>
+                        <option value="Gynecologist">Gynecologist</option>
+                        <option value="Psychiatrist">Psychiatrist</option>
+                        <option value="Dentist">Dentist</option>
+                        <option value="Ophthalmologist">Ophthalmologist</option>
+                        <option value="Ent">ENT Specialist</option>
+                        <option value="Urologist">Urologist</option>
+                        <option value="Oncologist">Oncologist</option>
+                        <option value="Gastroenterologist">Gastroenterologist</option>
+                        <option value="General">General Physician</option>
                     </select>
                 </div>
 
@@ -76,7 +86,7 @@
     </div>
 
     <!-- Page-Specific JavaScript Modules -->
-    <script type="module" src="../js/services/adminDashboard.js" defer></script>
+    <script type="module" src="../js/adminDashboard.js" defer></script>
     <script type="module" src="../js/components/doctorCard.js" defer></script>
 
 </body> 
