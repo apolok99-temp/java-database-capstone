@@ -3,7 +3,7 @@ import { openModal } from './components/modals.js';
 import { getDoctors  , filterDoctors , saveDoctor } from './services/doctorServices.js';
 import { createDoctorCard } from './components/doctorCard.js';
 
-document.getElementById('addDocBtn').addEventListener('click', () => {
+document.getElementById("addDocBtn").addEventListener('click', () => {
   openModal('addDoctor');
 });
 
@@ -31,78 +31,75 @@ document.getElementById("searchBar").addEventListener("input", filterDoctorsOnCh
 document.getElementById("filterTime").addEventListener("change", filterDoctorsOnChange);
 document.getElementById("filterSpecialty").addEventListener("change", filterDoctorsOnChange);
 
-async function filterDoctorsOnChange() {
-  const name = document.getElementById("searchBar")?.value.trim() || "";
-  const time = document.getElementById("timeFilter")?.value || "";
-  const specialty = document.getElementById("specialtyFilter")?.value || "";
+function filterDoctorsOnChange() {
+  const searchBar = document.getElementById("searchBar").value.trim(); 
+  const filterTime = document.getElementById("filterTime").value;  
+  const filterSpecialty = document.getElementById("filterSpecialty").value;  
 
-  try {
-    const result = await filterDoctors(name, time, specialty);
+  const name = searchBar.length > 0 ? searchBar : null;  
+  const time = filterTime.length > 0 ? filterTime : null;
+  const specialty = filterSpecialty.length > 0 ? filterSpecialty : null;
 
-    if (result.length > 0) {
-      renderDoctorCards(result);
-    } else {
-      document.getElementById("content").innerHTML = `<p class="noDoctorMsg">No doctors found.</p>`;
-    }
-  } catch (err) {
-    console.error("Error filtering doctors:", err);
-    alert("Failed to filter doctors. Please try again.");
-  }
-}
+  filterDoctors(name , time ,specialty)
+    .then(response => {
+      const doctors = response.doctors;
+      const contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = ""; 
 
-function renderDoctorCards(doctors) {
-  const contentDiv = document.getElementById("content");
-  contentDiv.innerHTML = "";
-
-  doctors.forEach((doctor) => {
-    const card = createDoctorCard(doctor);
-    contentDiv.appendChild(card);
-  });
+      if (doctors.length > 0) {
+        console.log(doctors);
+        doctors.forEach(doctor => {
+          const card = createDoctorCard(doctor);
+          contentDiv.appendChild(card);
+        });
+      } else {
+        contentDiv.innerHTML = "<p>No doctors found with the given filters.</p>";
+        console.log("Nothing");
+      }
+    })
+    .catch(error => {
+      console.error(" Failed to filter doctors:", error);
+      alert("❌ An error occurred while filtering doctors.");
+    });
 }
 
 window.adminAddDoctor = async function () {
-  const name = document.getElementById("docName")?.value.trim();
-  const email = document.getElementById("docEmail")?.value.trim();
-  const phone = document.getElementById("docPhone")?.value.trim();
-  const password = document.getElementById("docPassword")?.value.trim();
-  const specialty = document.getElementById("docSpecialty")?.value.trim();
-  const availableTimesInput = document.getElementById("docAvailableTimes")?.value.trim();
+    const name = document.getElementById('doctorName').value;
+    const specialty = document.getElementById('specialization').value;
+    const email = document.getElementById('doctorEmail').value;
+    const password = document.getElementById('doctorPassword').value;
+    const phone = document.getElementById('doctorPhone').value;
+    const checkboxes = document.querySelectorAll('input[name="availability"]:checked');
+    const availableTimes = Array.from(checkboxes).map(cb => cb.value);
 
-  if (!name || !email || !phone || !password || !specialty || !availableTimesInput) {
+  if (!name || !email || !phone || !password || !specialty || !availableTimes) {
     alert("Please fill in all fields.");
     return;
   }
 
-  const availableTimes = availableTimesInput.split(",").map(t => t.trim());
   const token = localStorage.getItem("token");
-
   if (!token) {
-    alert("Session expired. Please log in again.");
-    window.location.href = "/";
+    alert("❌ Token expired or not found. Please log in again.");
     return;
   }
 
   const doctor = {
     name,
-    email,
-    phone,
-    password,
     specialty,
+    email,
+    password,
+    phone,
     availableTimes
   };
 
-  try {
-    const result = await saveDoctor(doctor, token);
+  const { success, message } = await saveDoctor(doctor, token);
 
-    if (result.success) {
-      alert("Doctor added successfully!");
-      closeModal("addDoctor");
-      loadDoctorCards();
-    } else {
-      alert(`Failed to add doctor: ${result.message}`);
-    }
-  } catch (err) {
-    console.error("Error adding doctor:", err);
-    alert("An error occurred. Please try again.");
+  if (success) {
+    alert(message);
+    document.getElementById("modal").style.display = "none";
+    window.location.reload();
+
+  } else {
+    alert("❌ Error: " + message);
   }
 };

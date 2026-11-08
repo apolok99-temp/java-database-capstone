@@ -44,7 +44,7 @@ function renderHeader() {
 
   if (role === "admin") {
       headerContent += `
-        <button id="addDocBtn" class="adminBtn" onclick="openModal('addDoctor')">Add Doctor</button>
+        <button id="addDocBtn" class="adminBtn">Add Doctor</button>
         <a href="#" onclick="logout()">Logout</a>`;
   } else if (role === "doctor") {
         headerContent += `
@@ -67,10 +67,6 @@ function renderHeader() {
   attachHeaderButtonListeners();
 
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    renderHeader();
-});
 
 // --- Helper Functions ---
 
@@ -112,3 +108,5 @@ function attachHeaderButtonListeners() {
     });
   }
 }
+
+renderHeader();
